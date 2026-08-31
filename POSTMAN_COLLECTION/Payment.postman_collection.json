@@ -1,0 +1,613 @@
+{
+  "info": {
+    "_postman_id": "5532cc37-3872-4e9f-9f92-818b0b465f68",
+    "name": "Payment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36698671"
+  },
+  "item": [
+    {
+      "name": "BillPay",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "13",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"debtorAccountId\": \"a4403681-262c-46b9-8160-8ff08ede27c6\",\n  \"billerReferenceNumber\": \"HT123456789\",\n  \"invoiceReference\": \"INV-2025-10-001\",\n  \"executionDate\": \"2025-12-14\",\n  \"amount\": {\n    \"value\": 100,\n    \"currency\": \"CAD\"\n  },\n  \"note\": \"Pay Bill\"\n\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8086/api/v1/payments/billpay",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8086",
+          "path": [
+            "api",
+            "v1",
+            "payments",
+            "billpay"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Status",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "13",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8086/api/v1/payments/9795b389-0b1f-4465-ab59-95391eafc852",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8086",
+          "path": [
+            "api",
+            "v1",
+            "payments",
+            "9795b389-0b1f-4465-ab59-95391eafc852"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Settlement",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "15",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8090/api/mock/central1/pain002/793e30f4-6be1-4512-b1bf-bb5b3a99571a",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8090",
+          "path": [
+            "api",
+            "mock",
+            "central1",
+            "pain002",
+            "793e30f4-6be1-4512-b1bf-bb5b3a99571a"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Biller",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Hydro Toronto\",\n  \"referenceNumber\": \"HT123456789\",\n  \"category\": \"Electricity\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8088/api/v1/billers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8088",
+          "path": [
+            "api",
+            "v1",
+            "billers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Billers",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8088/api/v1/billers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8088",
+          "path": [
+            "api",
+            "v1",
+            "billers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Biller By ID",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8088/api/v1/billers/77de4b7f-022d-460c-a9d7-9182d8f60c4c",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8088",
+          "path": [
+            "api",
+            "v1",
+            "billers",
+            "77de4b7f-022d-460c-a9d7-9182d8f60c4c"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# Build output
+target/
+
+# IDE specific (Eclipse / STS)
+.settings/
+.project
+.classpath
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# OS specific
+.DS_Store
+
+# Logs
+*.log
+
+# Java compiled files
+*.class
+.classpath
+.factorypath
+.classpath
+.project
+/target
+.project
+.project
+.project
+.classpath

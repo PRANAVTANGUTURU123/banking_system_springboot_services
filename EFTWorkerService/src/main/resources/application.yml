@@ -1,0 +1,40 @@
+server:
+  port: 8091
+
+spring:
+  application:
+    name: eft-worker-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: eft-worker-service
+      auto-offset-reset: earliest
+    listener:
+      ack-mode: record
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eftworkerdb
+    username: eftworker
+    password: eftworker
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# TODO: set issuer-uri when wiring Auth0 / JWKS
+# spring:
+#   security:
+#     oauth2:
+#       resourceserver:
+#         jwt:
+#           issuer-uri: https://YOUR_TENANT/

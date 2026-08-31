@@ -1,0 +1,242 @@
+Account Service
+
+✅ Create Account — Use Case
+Goal
+
+Allow a customer to open a new bank account (e.g., Chequing, Savings).
+
+Who
+
+Customer (logged-in user)
+System (validates & creates account)
+Triggers
+
+Customer selects “Open New Account” in the app and submits required information.
+
+Happy Path
+
+Customer chooses account type, currency, and initial preferences.
+System validates that the customer is active and KYC Verified.
+System creates the account with status = ACTIVE, initial balance = 0.
+System returns the new account details.
+Variations / Edge Cases
+
+Customer not KYC Verified → show “KYC must be completed before opening account.”
+Customer already has max allowed accounts of same type (business rule).
+Business Rules
+
+Customer must be KYC Verified to open an account.
+Account starts with 0 balance and version = 1.
+Currency must be supported (e.g., CAD).
+Idempotency-Key required to avoid duplicate account creation on retry.
+Acceptance Criteria
+
+Given a KYC Verified customer, when I open a new account, then the account is created with status ACTIVE.
+Given I retry the same request with the same Idempotency-Key, then I receive the same response, not a duplicate account.
+Given I am not KYC Verified, when I attempt to create an account, then I see an error and account is not created.
+📄 Get Account — Use Case
+Goal
+
+Retrieve account details for display in the app.
+
+Who
+
+Customer (viewing their own account)
+Operations (support staff)
+Triggers
+
+User selects an account from the app dashboard.
+
+Happy Path
+
+System fetches the account by accountId.
+System returns account details including balances and status.
+Variations / Edge Cases
+
+Account does not belong to user → 403 Forbidden.
+Account not found → 404 Not Found.
+Business Rules
+
+Only the owner or authorized staff can view account details.
+ETag should be included for concurrency control on future updates.
+Acceptance Criteria
+
+Given a valid account I own, when I view details, then I see account info and latest balances.
+Given an invalid account ID, then I receive 404.
+Given I try to access someone else’s account, then I receive 403 Forbidden.
+📃 List Accounts for Customer — Use Case
+Goal
+
+Allow a customer to view all their linked accounts.
+
+Who
+
+Customer
+Triggers
+
+User opens “My Accounts” screen.
+
+Happy Path
+
+System fetches all accounts linked to the logged-in customer.
+Accounts appear in the app.
+Variations / Edge Cases
+
+Customer has no accounts → show empty list with “No accounts found”.
+Business Rules
+
+Only show accounts of the logged-in customer.
+Joint/secondary accounts support can be added later.
+Acceptance Criteria
+
+Given I am a logged-in customer, when I open My Accounts, then I should see a list of all my accounts.
+Given I have no accounts, when I open My Accounts, then I see an empty list.
+🔄 Update Account Status — Use Case
+Goal
+
+Enable operations to change account status (e.g., Suspend or Close account).
+
+Who
+
+Operations (authorized user)
+System
+Triggers
+
+Fraud alert, compliance reason, or account closure request.
+
+Happy Path
+
+Operations selects an account and chooses a status update (e.g., ACTIVE → SUSPENDED).
+System validates the transition.
+System updates status and records audit log.
+Variations / Edge Cases
+
+Status change not allowed (e.g., CLOSED → ACTIVE).
+Close account requested but balance not zero → reject with reason.
+Business Rules
+
+Account cannot be closed unless balance = 0 and no active holds exist.
+Status transitions must follow allowed state diagram.
+Only authorized roles can perform this action.
+Acceptance Criteria
+
+Given a valid transition (ACTIVE → SUSPENDED), then the status updates successfully.
+Given an invalid transition (CLOSED → ACTIVE), then I receive a validation error.
+Given a close request with non-zero balance, then system rejects the closure.
+💰 Place Funds Hold — Use Case
+Goal
+
+Reserve funds on an account for a pending payment (e.g., bill payment or RTR).
+
+Who
+
+Payments Orchestrator (system)
+Triggers
+
+A payment request is initiated requiring funds reservation.
+
+Happy Path
+
+System checks available balance.
+System creates a funds hold and reduces available balance.
+System returns hold reference ID.
+Variations / Edge Cases
+
+Insufficient balance → hold fails.
+Duplicate hold retry with same Idempotency-Key → return existing hold.
+Business Rules
+
+Held funds reduce available balance but not current balance.
+Holds are temporary and must be released or posted later.
+Acceptance Criteria
+
+Given sufficient funds, when a hold is placed, then available balance decreases.
+Given insufficient funds, then hold request is rejected.
+Given same Idempotency-Key retry, then same hold response is returned.
+🔓 Release Funds Hold — Use Case
+Goal
+
+Free up previously reserved funds.
+
+Who
+
+Payments Orchestrator (system)
+Operations (manual override)
+Triggers
+
+Payment cancelled or completed.
+
+Happy Path
+
+System finds active hold.
+System marks hold released.
+Available balance increases accordingly.
+Variations / Edge Cases
+
+Hold already released → return idempotent success.
+Hold not found → 404.
+Business Rules
+
+Holds can only be released once.
+Acceptance Criteria
+
+Given valid hold, when I release it, then the held amount becomes available.
+Given a second release attempt, then no error and no double credit occurs.
+➕ Credit Account — Use Case
+Goal
+
+Add money into a customer account.
+
+Who
+
+System (payments, transfers, refunds)
+Triggers
+
+Incoming transfer, deposit, or completed payment posting.
+
+Happy Path
+
+System validates request & ETag (if provided).
+Amount is added to current balance and version increments.
+Updated account details return to caller.
+Variations / Edge Cases
+
+Stale ETag version → reject with 409 Conflict.
+Currency mismatch → reject.
+Business Rules
+
+Must be idempotent at posting level (correlationId recommended).
+Acceptance Criteria
+
+Given a valid request, then balance increases and new version returns.
+Given a stale version, then I receive a 409 Conflict.
+➖ Debit Account — Use Case
+Goal
+
+Deduct money from a customer account.
+
+Who
+
+System (payments, transfers)
+Triggers
+
+Payment posting or outgoing transfer.
+
+Happy Path
+
+Validate sufficient available balance.
+Debit amount and bump version.
+Updated account details returned.
+Variations / Edge Cases
+
+Insufficient balance → reject.
+Stale ETag → 409 Conflict.
+Business Rules
+
+Cannot debit more than available balance.
+Must support optimistic locking to prevent double debit.
+Acceptance Criteria
+
+Given sufficient balance, when debit occurs, then balance reduces and version increases.
+Given insufficient balance, then debit fails with appropriate message.
+Given concurrent debit, then one succeeds and others receive 409 Conflict.

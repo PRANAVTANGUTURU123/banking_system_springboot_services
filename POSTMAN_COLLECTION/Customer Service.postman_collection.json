@@ -1,0 +1,993 @@
+{
+  "info": {
+    "_postman_id": "2732b024-6727-4673-bb14-8f9828d22566",
+    "name": "Customer Service",
+    "description": "Covers health, create (idempotent), get, patch (optimistic locking), KYC transitions, exists, and validation errors.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36698671"
+  },
+  "item": [
+    {
+      "name": "01 — Create & Get (positive)",
+      "item": [
+        {
+          "name": "Create (new → 201)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Seed email/externalId/idempotency on first run",
+                  "if (!pm.collectionVariables.get('email')) {",
+                  "  pm.collectionVariables.set('email', pm.variables.replaceIn('user-{{$timestamp}}@example.com'));",
+                  "}",
+                  "if (!pm.collectionVariables.get('customerId')) {",
+                  "  pm.collectionVariables.set('customerId', pm.variables.replaceIn('EXT-{{$timestamp}}-{{$randomInt}}'));",
+                  "}",
+                  "pm.collectionVariables.set('idemKey', pm.collectionVariables.get('customerId'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status in [200,201]', ()=> { const ok=[200,201]; pm.expect(ok).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test('Has externalId', ()=> pm.expect(json.externalId).to.exist);",
+                  "// capture ids & version",
+                  "pm.collectionVariables.set('customerId', json.externalId);",
+                  "pm.collectionVariables.set('internalId', String(json.id));",
+                  "if (json.version !== undefined) pm.collectionVariables.set('version', String(json.version));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jim\",\n  \"lastName\": \"Doe\",\n  \"email\": \"jim@gmail.com\",\n  \"phone\": \"5474056993\",\n  \"address\": \"14 Figma St\",\n  \"externalId\": \"jim\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/v1/customers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by customerId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Matches customerId', ()=> pm.expect(json.externalId).to.eql(pm.collectionVariables.get('customerId')));",
+                  "if (json.version !== undefined) pm.collectionVariables.set('version', String(json.version));"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "oauth2",
+              "oauth2": [
+                {
+                  "key": "authRequestParams",
+                  "value": [],
+                  "type": "any"
+                },
+                {
+                  "key": "tokenRequestParams",
+                  "value": [
+                    {
+                      "key": "audience",
+                      "value": "https://mockbank/api",
+                      "enabled": true,
+                      "send_as": "request_body"
+                    }
+                  ],
+                  "type": "any"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid profile email fdx:accounts.read",
+                  "type": "string"
+                },
+                {
+                  "key": "client_authentication",
+                  "value": "body",
+                  "type": "string"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "https://oauth.pstmn.io/v1/callback",
+                  "type": "string"
+                },
+                {
+                  "key": "clientId",
+                  "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+                  "type": "string"
+                },
+                {
+                  "key": "accessTokenUrl",
+                  "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+                  "type": "string"
+                },
+                {
+                  "key": "authUrl",
+                  "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize",
+                  "type": "string"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "authorization_code_with_pkce",
+                  "type": "string"
+                },
+                {
+                  "key": "addTokenTo",
+                  "value": "header",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}",
+                "disabled": true
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearer}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/john",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "john"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create replay (same externalId/email → 200 or 201)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Seed email/externalId/idempotency on first run",
+                  "if (!pm.collectionVariables.get('email')) {",
+                  "  pm.collectionVariables.set('email', pm.variables.replaceIn('user-{{$timestamp}}@example.com'));",
+                  "}",
+                  "if (!pm.collectionVariables.get('customerId')) {",
+                  "  pm.collectionVariables.set('customerId', pm.variables.replaceIn('EXT-{{$timestamp}}-{{$randomInt}}'));",
+                  "}",
+                  "pm.collectionVariables.set('idemKey', pm.collectionVariables.get('customerId'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status in [200,201]', ()=> { const ok=[200,201]; pm.expect(ok).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test('Has externalId', ()=> pm.expect(json.externalId).to.exist);",
+                  "// capture ids & version",
+                  "pm.collectionVariables.set('customerId', json.externalId);",
+                  "pm.collectionVariables.set('internalId', String(json.id));",
+                  "if (json.version !== undefined) pm.collectionVariables.set('version', String(json.version));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jim\",\n  \"lastName\": \"Doe\",\n  \"email\": \"jim@gmail.com\",\n  \"phone\": \"5474056993\",\n  \"address\": \"14 Figma St\",\n  \"externalId\": \"jim\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 — Update & Versioning",
+      "item": [
+        {
+          "name": "PATCH update (success)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('oldVersion', pm.collectionVariables.get('version'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Phone updated', ()=> pm.expect(json.phone).to.eql('+14165550000'));",
+                  "if (json.version !== undefined) pm.collectionVariables.set('version', String(json.version));",
+                  "pm.test('Version incremented', ()=> pm.expect(Number(pm.collectionVariables.get('version'))).to.be.greaterThan(Number(pm.collectionVariables.get('oldVersion'))));",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}",
+                "disabled": true
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearer}}",
+                "disabled": true
+              },
+              {
+                "key": "If-Match",
+                "value": "1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"1234567890\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/v1/customers/john",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8083",
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "john"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH update (version mismatch → 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('409 CONFLICT', ()=> pm.response.to.have.status(409));",
+                  "const json = pm.response.json();",
+                  "pm.test('Error code VERSION_MISMATCH or CONFLICT', ()=> pm.expect(['VERSION_MISMATCH','CONFLICT']).to.include(json.error.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearer}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{oldVersion}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+14165550001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/{{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "{{customerId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 — KYC transitions (negative path safe)",
+      "item": [
+        {
+          "name": "KYC: PENDING → REJECTED (204), then REJECTED → VERIFIED (400)",
+          "item": [
+            {
+              "name": "PATCH KYC to REJECTED",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('204 No Content', ()=> pm.response.to.have.status(204));"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOlsiaHR0cHM6Ly9tb2NrYmFuay9hcGkiLCJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTczNDcyNjcsImV4cCI6MTc1NzQzMzY2Nywic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImd0eSI6InBhc3N3b3JkIiwiYXpwIjoidTc4eXRwTVRqOHJUdjJ1Z3lWZWJxeWRvakFoWWpicWUiLCJwZXJtaXNzaW9ucyI6WyJmZHg6YWNjb3VudHMucmVhZCIsImZkeDphY2NvdW50cy53cml0ZSJdfQ.KlPesP2vfel1LMnS0a2-IVvBnPp2Htgy02quwM2sVPkMOMl-9DZooeMaEbcggGtUgv-_Zsrjgf7O5cTn2hoXjQayDpmFUv4lGk0wQ_QPMI8mTcAqZWas9kjkt1tHEH7P6mTu-SHRzXPgdFhvZ0aGp8Im2iYESx3QE9uMM91t4x0aTuTynPS_q0rh2rLjoUMDd-TTS6F9EMqTvr_EUOQ0H1_wldqoqbHIpekEHCD0s9t5NCCfbv3-din0s_gW7RVtfHA0JRJY0iW2lHruuGKM6S4D6ELMri_bVDq4IXTmbFXKCGlPD1RoVJzXpDgLX79eZVruRIQU-71FUyMwlyuZxQ",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "X-Request-Id",
+                    "value": "{{$guid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{bearer}}"
+                  },
+                  {
+                    "key": "If-Match",
+                    "value": "1"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kycStatus\": \"VERIFIED\",\n  \"reason\": \"Good\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/customers/jill/kyc-status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "customers",
+                    "jill",
+                    "kyc-status"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PATCH KYC VERIFIED",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('400 Bad Request', ()=> pm.response.to.have.status(400));",
+                      "const json = pm.response.json();",
+                      "pm.test('Error code INVALID_TRANSITION', ()=> pm.expect(json.error.code).to.eql('INVALID_TRANSITION'));"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "oauth2",
+                  "oauth2": [
+                    {
+                      "key": "scope",
+                      "value": "admin:users.write",
+                      "type": "string"
+                    },
+                    {
+                      "key": "clientId",
+                      "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+                      "type": "string"
+                    },
+                    {
+                      "key": "authUrl",
+                      "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+                      "type": "string"
+                    },
+                    {
+                      "key": "tokenRequestParams",
+                      "value": [
+                        {
+                          "key": "audience",
+                          "value": "https://mockbank/api",
+                          "enabled": false,
+                          "send_as": "request_body"
+                        }
+                      ],
+                      "type": "any"
+                    },
+                    {
+                      "key": "refreshRequestParams",
+                      "value": [],
+                      "type": "any"
+                    },
+                    {
+                      "key": "authRequestParams",
+                      "value": [],
+                      "type": "any"
+                    },
+                    {
+                      "key": "client_authentication",
+                      "value": "body",
+                      "type": "string"
+                    },
+                    {
+                      "key": "redirect_uri",
+                      "value": "https://oauth.pstmn.io/v1/callback",
+                      "type": "string"
+                    },
+                    {
+                      "key": "accessTokenUrl",
+                      "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+                      "type": "string"
+                    },
+                    {
+                      "key": "grant_type",
+                      "value": "authorization_code_with_pkce",
+                      "type": "string"
+                    },
+                    {
+                      "key": "addTokenTo",
+                      "value": "header",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kycStatus\": \"VERIFIED\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/customers/jim/kyc-status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "customers",
+                    "jim",
+                    "kyc-status"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 — Exists (positive)",
+      "item": [
+        {
+          "name": "Exists by email (true)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+                  "pm.test('true', ()=> pm.expect(pm.response.json()).to.eql(true));"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOlsiaHR0cHM6Ly9tb2NrYmFuay9hcGkiLCJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTczNDcyNjcsImV4cCI6MTc1NzQzMzY2Nywic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImd0eSI6InBhc3N3b3JkIiwiYXpwIjoidTc4eXRwTVRqOHJUdjJ1Z3lWZWJxeWRvakFoWWpicWUiLCJwZXJtaXNzaW9ucyI6WyJmZHg6YWNjb3VudHMucmVhZCIsImZkeDphY2NvdW50cy53cml0ZSJdfQ.KlPesP2vfel1LMnS0a2-IVvBnPp2Htgy02quwM2sVPkMOMl-9DZooeMaEbcggGtUgv-_Zsrjgf7O5cTn2hoXjQayDpmFUv4lGk0wQ_QPMI8mTcAqZWas9kjkt1tHEH7P6mTu-SHRzXPgdFhvZ0aGp8Im2iYESx3QE9uMM91t4x0aTuTynPS_q0rh2rLjoUMDd-TTS6F9EMqTvr_EUOQ0H1_wldqoqbHIpekEHCD0s9t5NCCfbv3-din0s_gW7RVtfHA0JRJY0iW2lHruuGKM6S4D6ELMri_bVDq4IXTmbFXKCGlPD1RoVJzXpDgLX79eZVruRIQU-71FUyMwlyuZxQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearer}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/exists?email=john@gmail.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "exists"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "john@gmail.com"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Exists by customerId (true)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+                  "pm.test('true', ()=> pm.expect(pm.response.json()).to.eql(true));"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearer}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/john/exists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "john",
+                "exists"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 — Negative validation/conflict",
+      "item": [
+        {
+          "name": "Create conflict: same email, different externalId (409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Seed email/externalId/idempotency on first run",
+                  "if (!pm.collectionVariables.get('email')) {",
+                  "  pm.collectionVariables.set('email', pm.variables.replaceIn('user-{{$timestamp}}@example.com'));",
+                  "}",
+                  "if (!pm.collectionVariables.get('customerId')) {",
+                  "  pm.collectionVariables.set('customerId', pm.variables.replaceIn('EXT-{{$timestamp}}-{{$randomInt}}'));",
+                  "}",
+                  "pm.collectionVariables.set('idemKey', pm.collectionVariables.get('customerId'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status in [409]', ()=> { const ok=[409]; pm.expect(ok).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test('Has externalId', ()=> pm.expect(json.externalId).to.exist);",
+                  "// capture ids & version",
+                  "pm.collectionVariables.set('customerId', json.externalId);",
+                  "pm.collectionVariables.set('internalId', String(json.id));",
+                  "if (json.version !== undefined) pm.collectionVariables.set('version', String(json.version));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"{{phone}}\",\n  \"address\": \"{{address}}\",\n  \"externalId\": \"EXT-CONFLICT-{{$timestamp}}-{{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create validation: missing address (400)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Seed email/externalId/idempotency on first run",
+                  "if (!pm.collectionVariables.get('email')) {",
+                  "  pm.collectionVariables.set('email', pm.variables.replaceIn('user-{{$timestamp}}@example.com'));",
+                  "}",
+                  "if (!pm.collectionVariables.get('customerId')) {",
+                  "  pm.collectionVariables.set('customerId', pm.variables.replaceIn('EXT-{{$timestamp}}-{{$randomInt}}'));",
+                  "}",
+                  "pm.collectionVariables.set('idemKey', pm.collectionVariables.get('customerId'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status in [400]', ()=> { const ok=[400]; pm.expect(ok).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test('Has externalId', ()=> pm.expect(json.externalId).to.exist);",
+                  "// capture ids & version",
+                  "pm.collectionVariables.set('customerId', json.externalId);",
+                  "pm.collectionVariables.set('internalId', String(json.id));",
+                  "if (json.version !== undefined) pm.collectionVariables.set('version', String(json.version));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ava\",\n  \"lastName\": \"Singh\",\n  \"email\": \"user-missing-{{$timestamp}}@example.com\",\n  \"phone\": \"+14165550123\",\n  \"externalId\": \"EXT-MISS-{{$timestamp}}-{{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create validation: bad email format (400)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Seed email/externalId/idempotency on first run",
+                  "if (!pm.collectionVariables.get('email')) {",
+                  "  pm.collectionVariables.set('email', pm.variables.replaceIn('user-{{$timestamp}}@example.com'));",
+                  "}",
+                  "if (!pm.collectionVariables.get('customerId')) {",
+                  "  pm.collectionVariables.set('customerId', pm.variables.replaceIn('EXT-{{$timestamp}}-{{$randomInt}}'));",
+                  "}",
+                  "pm.collectionVariables.set('idemKey', pm.collectionVariables.get('customerId'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status in [400]', ()=> { const ok=[400]; pm.expect(ok).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test('Has externalId', ()=> pm.expect(json.externalId).to.exist);",
+                  "// capture ids & version",
+                  "pm.collectionVariables.set('customerId', json.externalId);",
+                  "pm.collectionVariables.set('internalId', String(json.id));",
+                  "if (json.version !== undefined) pm.collectionVariables.set('version', String(json.version));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idemKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"email\": \"not-an-email\",\n  \"phone\": \"{{phone}}\",\n  \"address\": \"{{address}}\",\n  \"externalId\": \"EXT-BADMAIL-{{$timestamp}}-{{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by customerId (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 Not Found', ()=> pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-Id",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bearer}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/DOES-NOT-EXIST",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "DOES-NOT-EXIST"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

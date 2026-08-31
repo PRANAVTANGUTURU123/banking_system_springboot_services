@@ -1,0 +1,1096 @@
+{
+  "info": {
+    "_postman_id": "ce9e31c0-ca9e-4f61-a056-8f3838e98718",
+    "name": "Account",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36698671"
+  },
+  "item": [
+    {
+      "name": "Create Account",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"jill\",\n  \"accountType\": \"CHEQUING\",\n  \"accountSubType\": \"PERSONAL\",\n  \"status\": \"ACTIVE\",\n  \"currency\": \"CAD\",\n  \"nickname\": \"Account One\",\n  \"displayName\": \"Primary Chequing\",\n  \"openingBalance\": 1000.00\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DebitAccount",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "If-Match",
+            "value": "12",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 1,\n  \"reason\": \"Dollarama\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/a4403681-262c-46b9-8160-8ff08ede27c6/debit",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "a4403681-262c-46b9-8160-8ff08ede27c6",
+            "debit"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Credit Account",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 50.00,\n  \"reason\": \"promo credit\"\n}\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/a4403681-262c-46b9-8160-8ff08ede27c6/credit",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "a4403681-262c-46b9-8160-8ff08ede27c6",
+            "credit"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create hold",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "f7db0a02-38c0-43a9-8f2c-4b5d1c0bca77",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 13.00,\n  \"reason\": \"Bill Payment Requested\",\n  \"releaseAt\": \"2025-11-27T10:00:00\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/a4403681-262c-46b9-8160-8ff08ede27c6/holds",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "a4403681-262c-46b9-8160-8ff08ede27c6",
+            "holds"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Release Hold",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/0d643002-c532-46d6-8396-85884e0502ea/holds/d7817550-ed69-488f-8fb3-36cf9152bf74/release",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "0d643002-c532-46d6-8396-85884e0502ea",
+            "holds",
+            "d7817550-ed69-488f-8fb3-36cf9152bf74",
+            "release"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Account By Id",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/a4403681-262c-46b9-8160-8ff08ede27c6",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "a4403681-262c-46b9-8160-8ff08ede27c6"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Accounts by Customer ID",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOiJodHRwczovL21vY2tiYW5rL2FwaSIsImlhdCI6MTc2MTk1MTk5NCwiZXhwIjoxNzYyMDM4Mzk0LCJhenAiOiI1ekV4RTNmUThsRDNKbjVpSXZyNVBmTUE2YnNNYWVaMiIsInBlcm1pc3Npb25zIjpbImZkeDphY2NvdW50cy5yZWFkIiwiZmR4OmFjY291bnRzLndyaXRlIl19.SbtBnD1wj8Otae1AWhEeVpce0VZq1z28Ko9C4tDfXabfmUxti2yxZzIaWb-LnPQAaOfsDk7Y9sz3xXJbzG26euqUWiuUe16kZJXv3C9lqCMWSI_d8sSrTMEdSwrYD5uglJY_ychyqW1WLMfdnKhT6WSf0nLgnqwbeoo7JNdCl4diANGeVot_xAdzwshu_9pDaHS9H234HcW4xVplVdZe0tpvmD1uLXO0EE1CZg_SrCUMi1DOcrEgY6Xp3eMfUV4iG_8T7ckfHncyq5JLrT7ugIdwi7w0qofZqron66UhMFIHpD7Wiuyo95HKw3Cav4B27QBGoo-0S613sVgAODlL9Q",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "  \"externalCustomerId\":\"terminal-994\",\n  \"accountType\": \"SAVINGS\",\n  \"initialDeposit\": 1000.00,\n  \"currency\": \"CAD\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/customer/jill/accounts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "customer",
+            "jill",
+            "accounts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Accounts",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOiJodHRwczovL21vY2tiYW5rL2FwaSIsImlhdCI6MTc2MTk1NDU0MCwiZXhwIjoxNzYyMDQwOTQwLCJhenAiOiI1ekV4RTNmUThsRDNKbjVpSXZyNVBmTUE2YnNNYWVaMiIsInBlcm1pc3Npb25zIjpbImZkeDphY2NvdW50cy5yZWFkIiwiZmR4OmFjY291bnRzLndyaXRlIl19.KV6XmhmpW1FDzJGj-G-OO3i-92oiyNNoXYbzbkie_bSQhYT0E16UOFCp6IWI1V83TwUMXhkvHrW_rMd5rZgPel8gjnxh1y7RKEWtXk4Bfho363NMMiiXu9yC1FlWplSaz6TsIryuJUE_RcQtlirbUMz6R8Rec4vozLl-1tKKKBaqS-W4hjNeEuREEyKEpJ5Ibk1LU41JqgzoLmHPmg0e9SJcb77NN6nLx3i9EBpVhZMNnRzJMop7Kr3qRKCIjag8P9-FccsuqSYPIW9PswfUlv8g0uRNvmIKb2FA04BUK3axjbThdEp6Qswn4leYqlj-C9ZDVx1DD7N_6fujep8aXw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Account Status",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/0d643002-c532-46d6-8396-85884e0502ea/status?status=ACTIVE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "0d643002-c532-46d6-8396-85884e0502ea",
+            "status"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "ACTIVE"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Account Owner",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOiJodHRwczovL21vY2tiYW5rL2FwaSIsImlhdCI6MTc2MTk1ODE5MCwiZXhwIjoxNzYyMDQ0NTkwLCJhenAiOiI1ekV4RTNmUThsRDNKbjVpSXZyNVBmTUE2YnNNYWVaMiIsInBlcm1pc3Npb25zIjpbImZkeDphY2NvdW50cy5yZWFkIiwiZmR4OmFjY291bnRzLndyaXRlIl19.ohgp6DFD75fRzMJQmlLuerpDxforweFGcxqVFPRo1rmOgotiETKTqNYr89OlSgR_SLplYJ7QohrTazHCeUxTaWc3YrTBCfETcM5KdCwjENAUai6b_VEY0D3HQZ_TPOZuQUWgZLNxNk-MNkRJLoH_HKVebk_BvdUNi8orjbwKHouwUCfvGuU80Mh4U1eWxjYwf9krTWibYDHrJkt6PMNYHytne_GDQz9N7jA_owCuTx1yTWfH_NT5KadepzHx9kw5T9YvAiBOHnKQHuGvjNjxMMJlPgDEUi0sRqISJ5yDKC_UoK9VHwS8itag94uxVPkR3lla1ZrawFSAdyLSegS-9A",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/3484a20c-1124-4483-bede-2f77b16a83cd/owner",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "3484a20c-1124-4483-bede-2f77b16a83cd",
+            "owner"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Balance for an Account",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/a4403681-262c-46b9-8160-8ff08ede27c6/balance",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "a4403681-262c-46b9-8160-8ff08ede27c6",
+            "balance"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Account Status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJraWQiOiIxOGI1NTdlNi0xZWU5LTQyZDgtYTg3ZC1iYmM4Y2Y3ODg5OTUiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW1hbkBleGFtcGxlLmNvbSIsImV4cCI6MTc1MDgwNjQ4NSwiaWF0IjoxNzUwODAyODg1LCJqdGkiOiJiNTRlYzk5NS01YWNkLTQ1NTAtOTc1Ni1iNTFjNzdhNWM2MzcifQ.oDinWOvqvoKaz-4emm0k3iPKujBKqx_mgauout0n95a825-f1ElWr_PGrpPGiZYpM-BhnB5vO6Hg371Fx913vH8lV1XmskW2XoYEKos70PEhv6DFLMjZaVwrNF1WIji06wnBMgF0l2sUUBOXZf4LOzy4WD_s5FLaAKo30AhCbBVLOpOA92MLYGKwH0DNQuSi3pEag0of4fTjiv0ZALqdIu4YiXGPJ1jI3qMJ0wqXp1_G46kvYSFHQZRZ3uO2H3z4fj0ZOJ9Yv7dfCjajrpuC8XFYg4ny2UgP2hbT9hmKf-x7YteU0pwyArkQ9gW38d3DiB3ZrHCIIi97ibG9rOcUFA",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "  \"externalCustomerId\":\"terminal-994\",\n  \"accountType\": \"SAVINGS\",\n  \"initialDeposit\": 1000.00,\n  \"currency\": \"CAD\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/aa54c81c-764c-4e37-847a-a47df0be24a1/status?status=ACTIVE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "aa54c81c-764c-4e37-847a-a47df0be24a1",
+            "status"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "ACTIVE"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search Accounts (by status and/or currency)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "  \"externalCustomerId\":\"terminal-994\",\n  \"accountType\": \"SAVINGS\",\n  \"initialDeposit\": 1000.00,\n  \"currency\": \"CAD\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/search?status=ACTIVE&currency=CAD",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "ACTIVE"
+            },
+            {
+              "key": "currency",
+              "value": "CAD"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Owner",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJraWQiOiJiOGNlYmQ0MC1lM2FhLTQzYTYtYmY5Ni00MTYwMDNhYjMxNzEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW1hbkBleGFtcGxlLmNvbSIsImV4cCI6MTc1MTAwMTg1NywiaWF0IjoxNzUwOTk4MjU3LCJqdGkiOiI4ZTE3MjM0NC1hN2I2LTRlN2QtOTBiYi0wOWZhM2I4N2E0NDEiLCJzY29wZSI6ImZkeDphY2NvdW50cy5yZWFkIGZkeDphY2NvdW50cy53cml0ZSBmZHg6dHJhbnNhY3Rpb25zLnJlYWQgZmR4OnRyYW5zYWN0aW9ucy53cml0ZSJ9.pZ9bUEhu8KzwWWoeW3Mh6BlX3CoM9TbEDDmwL0CAuojmhWBg2cxs1VF-l2zSSIdygkjCBcCJLDOC94hMGk6cU99JGzvThCuOB7TZUTUkPAJTNkGk88uRUYcq_8mCAvm2b3Oga4C2viJPexx5cOo5eYWq_FFaaTQkoPcqfS916qSoAjIGRLozsfimBZu2ndY9WEeCAtEEU6Oq2nWpRwIWeONH8X_leO0p32DMcE3hZcx_j2SemGPBp5vHEuQTQXtU7LUH504XWMviyPUBSyFIDg2XzJsU2mNZG1Vf1HKaTZjWQ6g65jLzNHEgqL6VMP7lFbHWPg3dsrC8rGckmz0lpQ",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/f4a6e440-cc07-48ef-8e80-973c7c9be7d2/owner",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "f4a6e440-cc07-48ef-8e80-973c7c9be7d2",
+            "owner"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

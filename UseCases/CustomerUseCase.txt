@@ -1,0 +1,173 @@
+Customer Service
+Create Customer — Use Case
+
+Goal
+
+Allow a person to create a customer profile
+
+Who
+
+Customer (new user)
+Operations (manual KYC approver, if needed)
+Triggers
+
+Customer selects “Sign up” in the app and submits updated information.
+
+
+
+Happy Path
+
+Customer enters first name, last name, email, phone, and address.
+System checks that the email/customerId isn’t already used.
+System creates a customer profile with KYC Pending.
+
+
+Variations / Edge Cases
+
+Duplicate email
+Duplicate externalId
+
+
+Business Rules
+
+Email must be unique.
+Address is mandatory for KYC.
+Login is disabled until KYC Verified.
+
+
+Acceptance Criteria
+
+Given a new email, when I submit the form, then I see a success message and my status is KYC Pending.
+Given KYC Verified, when I return, then I can sign in successfully.
+
+
+
+
+Update Customer 
+
+Goal
+
+Allow an existing customer to update their profile details (e.g., phone, address, nickname).
+
+Who
+
+Customer (logged-in user)
+System (validates changes)
+Triggers
+
+Customer selects “Update Profile” in the app and submits updated information.
+
+Happy Path
+
+Customer provides new details (e.g., address change).
+System validates the fields.
+System updates the record in the customers table and bumps the version number.
+Customer sees: “Your profile has been updated successfully.”
+
+Variations / Edge Cases
+
+Attempt to change immutable fields (e.g., externalId, email). → Error “Field not updatable.”
+Business Rules
+
+Certain fields are immutable (externalId).
+Optimistic locking via version to prevent overwrite.
+Acceptance Criteria
+
+Given valid updates, when I submit, then my profile reflects the new details.
+Given concurrent update, when version mismatch occurs, then I get a 409 Conflict.
+
+
+Update Customer KYC
+
+Goal
+
+Allow operations to update customer's KYC .
+
+Who
+
+System
+
+
+
+Happy Path
+
+KYC completes (automated or operations approves it).
+System marks the profile KYC Verified and creates login credentials.
+Customer can log in.
+
+
+Variations / Edge Cases
+
+KYC failed → status becomes KYC Failed;
+Acceptance Criteria
+
+Given KYC Verified, when I return, then I can sign in successfully.
+
+
+
+
+
+
+
+Get Customer — Use Case
+
+Goal
+
+Retrieve customer details for display in the app or internal operations.
+
+Who
+
+Customer (self-view)
+Operations (support staff with scope)
+Triggers
+
+User logs in and navigates to profile, or support queries customer details.
+
+Happy Path
+
+System fetches the customer record by ID/externalId.
+Sensitive fields (like email, phone) shown only if scope permits.
+Customer sees their details in the UI.
+Variations / Edge Cases
+
+Invalid ID → 404 Not Found.
+Customer inactive → “Profile not available.”
+Business Rules
+
+Data returned must exclude sensitive audit fields (version, internal IDs).
+Acceptance Criteria
+
+Given a valid ID, when I call Get Customer, then I see profile data.
+Given an invalid ID, when I call Get Customer, then I see 404 Not Found.
+Given insufficient scope, when I call Get Customer, then I see 403 Forbidden.
+
+
+ Customer Exists — Use Case
+
+Goal
+
+Check if a customer exists (by email or externalId) before creating or linking accounts.
+
+Who
+
+Account Service, Payment Service, or any upstream system needing validation.
+Triggers
+
+External system calls “/customers/exists?email=…” or “/customers/exists?externalId=…”.
+
+Happy Path
+
+System searches the customer table by provided key.
+Returns boolean: true if found, false if not.
+Variations / Edge Cases
+
+Invalid format → 400 Bad Request.
+Business Rules
+
+Must be idempotent and side-effect free.
+Should not leak sensitive data beyond true/false.
+Acceptance Criteria
+
+Given existing email, when I call exists, then I get true.
+Given non-existing email, when I call exists, then I get false.
+Given invalid parameter, when I call exists, then I get 400 error.

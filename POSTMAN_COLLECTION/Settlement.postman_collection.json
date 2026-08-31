@@ -1,0 +1,82 @@
+{
+  "info": {
+    "_postman_id": "c74e9e25-d392-43f6-8abd-849d3d2db405",
+    "name": "Settlement",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36698671"
+  },
+  "item": [
+    {
+      "name": "Settle Bills",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOlsiaHR0cHM6Ly9tb2NrYmFuay9hcGkiLCJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTU5OTUyMTQsImV4cCI6MTc1NjA4MTYxNCwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImd0eSI6InBhc3N3b3JkIiwiYXpwIjoidTc4eXRwTVRqOHJUdjJ1Z3lWZWJxeWRvakFoWWpicWUiLCJwZXJtaXNzaW9ucyI6WyJmZHg6YWNjb3VudHMucmVhZCIsImZkeDphY2NvdW50cy53cml0ZSJdfQ.Ecq-qZk-1ycaZ68klWFTUREzqSHcVUqp9HnoJyUoK4uuQCEuKYvBjOjyo7haOpnb1FeCrQ0pQa3CqZrw0KFvBOE2bpSP0DeV3Ab3sv-_7Lt-67TrnRDxRqpIhjfIj_O51CyaumwmCmCw9FYzQuoaD4fF3VTXSzk2ajRXt1o2A0Q7Tl6UOMdF--8orUezNiAA2FPExoOR0WJCvrQOSfka5JckyUyUfMU1KxtnXlggN5MjX3rcGKXaDdQuv5F2ns1wsyOOTMiVVY8fG6ccJCsO5-SMVPUUixcCMUD2xQy6eDSzXJWFCANLvTprlA_mD8s1KK_MbzFVtw8ks3JxUTepdg",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8087/mock/bill-ack?file=BILL_c2f83651-0a94-483c-8809-6392e1aa3838.tx",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8087",
+          "path": [
+            "mock",
+            "bill-ack"
+          ],
+          "query": [
+            {
+              "key": "file",
+              "value": "BILL_c2f83651-0a94-483c-8809-6392e1aa3838.tx"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Settle ACH",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOlsiaHR0cHM6Ly9tb2NrYmFuay9hcGkiLCJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTU5OTUyMTQsImV4cCI6MTc1NjA4MTYxNCwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImd0eSI6InBhc3N3b3JkIiwiYXpwIjoidTc4eXRwTVRqOHJUdjJ1Z3lWZWJxeWRvakFoWWpicWUiLCJwZXJtaXNzaW9ucyI6WyJmZHg6YWNjb3VudHMucmVhZCIsImZkeDphY2NvdW50cy53cml0ZSJdfQ.Ecq-qZk-1ycaZ68klWFTUREzqSHcVUqp9HnoJyUoK4uuQCEuKYvBjOjyo7haOpnb1FeCrQ0pQa3CqZrw0KFvBOE2bpSP0DeV3Ab3sv-_7Lt-67TrnRDxRqpIhjfIj_O51CyaumwmCmCw9FYzQuoaD4fF3VTXSzk2ajRXt1o2A0Q7Tl6UOMdF--8orUezNiAA2FPExoOR0WJCvrQOSfka5JckyUyUfMU1KxtnXlggN5MjX3rcGKXaDdQuv5F2ns1wsyOOTMiVVY8fG6ccJCsO5-SMVPUUixcCMUD2xQy6eDSzXJWFCANLvTprlA_mD8s1KK_MbzFVtw8ks3JxUTepdg",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8087/mock/aft-ack?file=BILL_c2f83651-0a94-483c-8809-6392e1aa3838.tx",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8087",
+          "path": [
+            "mock",
+            "aft-ack"
+          ],
+          "query": [
+            {
+              "key": "file",
+              "value": "BILL_c2f83651-0a94-483c-8809-6392e1aa3838.tx"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "info": {
+    "_postman_id": "13e7bbcf-43af-44c1-8d35-811463ca96f6",
+    "name": "Auth User",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36698671"
+  },
+  "item": [
+    {
+      "name": "Create User in Auth0",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n \"email\": \"test4@gmail.com\",\n \"password\": \"1234\",\n \"customerId\": \"test4\"\n }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8094/api/v1/iam/users",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8094",
+          "path": [
+            "api",
+            "v1",
+            "iam",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "public endpoint",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n \"email\": \"jill@gmail.com\",\n \"password\": \"1234\",\n \"customerId\": \"jill\"\n }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8094/api/v1/test/public",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8094",
+          "path": [
+            "api",
+            "v1",
+            "test",
+            "public"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

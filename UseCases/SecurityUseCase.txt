@@ -1,0 +1,44 @@
+Security Service
+AuthUser Use Case
+
+
+🎯 Goal
+Once a customer completes KYC, they should receive login credentials and be able to sign in via Auth0. Upon successful login, they receive a JWT access token containing the correct roles and scopes to securely access backend APIs.
+
+Internal backend services should also be able to request M2M tokens using the client_credentials flow when calling each other.
+
+👤 Actors
+Customer (end user using SPA frontend)
+AuthUser Service – our backend service that provisions users in Auth0
+Customer Service – marks customers as KYC verified
+Auth0 – the Identity Provider (IdP)
+Backend Services – e.g., Payment Orchestrator calling Transaction service (M2M clients)
+✅ Preconditions
+Customer’s KYC status is VERIFIED
+Auth0 is configured with:
+Applications: SPA (PKCE) and M2M (client_credentials)
+API: MockBank API with audience https://mockbank/api
+RBAC enabled + “Add Permissions in Access Token” enabled
+Roles: ROLE_CUSTOMER, ROLE_OPS, ROLE_SERVICE
+Permissions/scopes like fdx:accounts.read, fdx:transactions.write, etc.
+Post-login Action to add custom claims (e.g., role, customer_id)
+📈 Primary Flow (Happy Path)
+
+
+AuthUser Service provisions the user in Auth0
+Calls Auth0 Management API to create user (if not already existing)
+Assigns the role (ROLE_CUSTOMER) and required permissions
+Optionally triggers a password setup or verification email
+Customer logs in (SPA)
+SPA redirects to Auth0 Universal Login
+Authorization Code + PKCE flow executes
+SPA receives an Access Token (JWT) and optional Refresh Token
+Accessing Resource Servers
+SPA calls secure APIs with Authorization: Bearer <token>
+Resource Server validates the JWT (signature, audience, scopes) and authorizes access
+Service-to-Service (M2M) Flow
+Backend service uses client_credentials grant to get a token from Auth0
+Token is cached and reused until it expires
+Used for calls like Payment Orchestrator → Transaction Service
+⚠️ Edge Cases
+Expired/invalid token → Resource returns 401/403; client refreshes token

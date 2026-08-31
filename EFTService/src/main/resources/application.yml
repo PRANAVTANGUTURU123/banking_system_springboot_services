@@ -1,0 +1,25 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: eft-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eftdb
+    username: eft
+    password: eft
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+# TODO: set these when wiring Auth0 / JWKS in your environment
+# spring:
+#   security:
+#     oauth2:
+#       resourceserver:
+#         jwt:
+#           issuer-uri: https://YOUR_TENANT/

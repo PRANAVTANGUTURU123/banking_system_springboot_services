@@ -1,0 +1,168 @@
+Use Case: Bill Payment (Event-Driven Architecture)
+1. Use Case Name
+
+Event-Driven Bill Payment Processing
+
+2. Primary Actor
+
+Customer (via digital channel – mobile/web)
+
+3. Supporting Actors
+
+Payment Orchestrator Service
+
+Biller Service
+
+Account Service
+
+Outbox Publisher
+
+BillPay Worker
+
+Settlement Service
+
+Dummy Central 1 (External system)
+
+Kafka Event Bus
+
+4. Goal
+
+To enable a customer to pay a utility bill, ensuring:
+
+fund availability,
+
+reliable event-driven processing,
+
+batching & settlement,
+
+final debit posting,
+
+and clear error handling (including retries & DLQ).
+
+5. Preconditions
+
+Customer is authenticated
+
+The biller exists and is active
+
+Customer account has sufficient funds
+
+6. Postconditions
+Success
+
+Funds are debited from customer's account
+
+Payment status is marked as POSTED
+
+Failure
+
+No debit occurs
+
+Hold is released
+
+Payment is marked FAILED
+
+7. Trigger
+
+Customer initiates a Bill Payment through digital channel.
+
+8. Main Flow (Event-Driven Steps)
+Step 1 – Validate Biller
+
+Payment Orchestrator calls Biller Service:
+
+verify biller exists
+
+verify biller is active
+
+Step 2 – Validate Funds
+
+Payment Orchestrator calls Account Service:
+
+verify balance
+
+place temporary fund hold
+
+Step 3 – Record Payment + Outbox (Atomic Transaction)
+
+Insert payment row with FUNDS_HELD
+
+Insert outbox row with PENDING
+
+(Transactional Outbox ensures DB + Kafka consistency)
+
+Step 4 – Ack to User
+
+Payment Orchestrator returns HTTP 202 Accepted
+
+Step 5 – Outbox Publisher Triggers Events
+
+Picks pending outbox rows
+
+Publishes events to Kafka
+
+Marks rows as PUBLISHED
+
+Step 6 – BillPay Worker Consumes Event
+
+Stores each bill line
+
+Assigns batch ID
+
+Emits status event (BATCHED)
+
+Step 7 – Cutoff Batching
+
+At cutoff (e.g., 4 PM):
+
+Collect all pending bill lines
+
+Form a batch
+
+Emit batch ready event
+
+Step 8 – Settlement Processing
+
+Settlement Service:
+
+Builds pain.001
+
+Uploads file to Dummy Central 1
+
+Emits submitted event
+
+Step 9 – Central 1 Response
+
+When pain.002 is received:
+
+Settlement iterates each record
+
+Emits billpay.status for each item
+
+Step 10 – Final Posting
+
+Payment Orchestrator:
+
+If POSTED → release hold + debit funds
+
+If FAILED → release hold only
+
+9. Error / Retry Handling
+
+Settlement performs up to 3 retries
+
+Persistent failures → moved to DLQ
+
+DLQ items flagged for manual review
+
+10. Business States
+
+FUNDS_HELD
+
+BATCHED
+
+SUBMITTED
+
+POSTED
+
+FAILED

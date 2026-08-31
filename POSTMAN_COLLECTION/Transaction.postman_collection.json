@@ -1,0 +1,483 @@
+{
+  "info": {
+    "_postman_id": "706ea61f-1ad3-4824-8b5e-7d6e72876d17",
+    "name": "Transaction",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36698671"
+  },
+  "item": [
+    {
+      "name": "Create txn",
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "8c7c7c2e-6f23-4f39-9a91-123456789abc",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountId\": \"3484a20c-1124-4483-bede-2f77b16a83cd\",\n  \"amount\": 150.00,\n  \"currency\": \"CAD\",\n  \"type\": \"CREDIT\",\n  \"reason\": \"Salary Credit\",\n  \"correlationId\": \"req-20250210-001\",\n  \"idempotencyKey\": \"txn-salary-jan-2025\",\n  \"externalTransactionId\": \"31c745f3-5b72-4c5d-8d5f-3189f422c123\",\n  \"balanceAfter\": 1250.75,\n  \"occurredAt\": \"2025-02-10T10:00:00Z\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8091/api/v1/transactions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8091",
+          "path": [
+            "api",
+            "v1",
+            "transactions"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All txns",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8091/api/v1/transactions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8091",
+          "path": [
+            "api",
+            "v1",
+            "transactions"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Transactions by Account",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/a4403681-262c-46b9-8160-8ff08ede27c6/transactions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "a4403681-262c-46b9-8160-8ff08ede27c6",
+            "transactions"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Transactions by Account",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "oauth2",
+          "oauth2": [
+            {
+              "key": "scope",
+              "value": "admin:users.write",
+              "type": "string"
+            },
+            {
+              "key": "clientId",
+              "value": "5zExE3fQ8lD3Jn5iIvr5PfMA6bsMaeZ2",
+              "type": "string"
+            },
+            {
+              "key": "authUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/authorize?audience=https://mockbank/api",
+              "type": "string"
+            },
+            {
+              "key": "tokenRequestParams",
+              "value": [
+                {
+                  "key": "audience",
+                  "value": "https://mockbank/api",
+                  "enabled": false,
+                  "send_as": "request_body"
+                }
+              ],
+              "type": "any"
+            },
+            {
+              "key": "refreshRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "authRequestParams",
+              "value": [],
+              "type": "any"
+            },
+            {
+              "key": "client_authentication",
+              "value": "body",
+              "type": "string"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "https://oauth.pstmn.io/v1/callback",
+              "type": "string"
+            },
+            {
+              "key": "accessTokenUrl",
+              "value": "https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token",
+              "type": "string"
+            },
+            {
+              "key": "grant_type",
+              "value": "authorization_code_with_pkce",
+              "type": "string"
+            },
+            {
+              "key": "addTokenTo",
+              "value": "header",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8084/api/v1/accounts/a4403681-262c-46b9-8160-8ff08ede27c6/transactions?startDate=2025-02-01T00:00:00Z&endDate=2025-11-24T23:59:59Z&type=DEBIT&limit=5&offset=5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8084",
+          "path": [
+            "api",
+            "v1",
+            "accounts",
+            "a4403681-262c-46b9-8160-8ff08ede27c6",
+            "transactions"
+          ],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "2025-02-01T00:00:00Z"
+            },
+            {
+              "key": "endDate",
+              "value": "2025-11-24T23:59:59Z"
+            },
+            {
+              "key": "type",
+              "value": "DEBIT"
+            },
+            {
+              "key": "limit",
+              "value": "5"
+            },
+            {
+              "key": "offset",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Transactions by ID",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InJBcDVVSlBSbWhmMzFsVzU1YlF3WSJ9.eyJjdXN0b21lcl9pZCI6InJleWFuc2giLCJpc3MiOiJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw2ODcyOGFkNjgxNmI1YzA1YTAyMmMwNjMiLCJhdWQiOlsiaHR0cHM6Ly9tb2NrYmFuay9hcGkiLCJodHRwczovL2Rldi13Z2swNGRqNXY2OHNiaHJlLnVzLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3NTUxMTQxOTEsImV4cCI6MTc1NTIwMDU5MSwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImd0eSI6InBhc3N3b3JkIiwiYXpwIjoidTc4eXRwTVRqOHJUdjJ1Z3lWZWJxeWRvakFoWWpicWUiLCJwZXJtaXNzaW9ucyI6WyJmZHg6YWNjb3VudHMucmVhZCIsImZkeDphY2NvdW50cy53cml0ZSJdfQ.Z_-EHKb5IMnPPrnDLjAueGFBtkX-TL503Jew1IGqfK1Ta5SeFKctvYzwnxhlvYkIy9UcUrGjjczq-hCkvybQzRy4fvV9KVazzA4sVduXWKWmKgLxDfTEU1fGXQWha9nfxPcPLKmybj8jH7LH173kKSU3N9uJwQ87BlgzNTB_fl9og0L4UJy8CquoNwA6K9Ow-hrXDnCKpVfLBjaEe0DFjB4aDebcefYGlFmyUNJP7-dqCY-NDoquyhfi83_fFFnPUQZYx_sMOpH6MQ9oBmT2R635d2zTqfMywyBZwGznJSdR8HLoxQAQp8IMubR77zfObllzwrsXoHM1DOBbmSvb5A",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8091/api/v1/transactions/f4a6e440-cc07-48ef-8e80-973c7c9be7d2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8091",
+          "path": [
+            "api",
+            "v1",
+            "transactions",
+            "f4a6e440-cc07-48ef-8e80-973c7c9be7d2"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
