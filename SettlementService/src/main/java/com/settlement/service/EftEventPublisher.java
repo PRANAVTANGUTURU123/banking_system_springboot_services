@@ -1,38 +1,35 @@
 package com.settlement.service;
 
+import com.events.BatchDeadLettered;
+import com.events.Topics;
 import com.events.eft.EftBatchSubmittedEvent;
 import com.events.eft.EftStatusEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.settlement.outbox.OutboxWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+/** EFT rail events, published through the outbox (see {@link SettlementEventPublisher}). */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class EftEventPublisher {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
-
-    private String toJson(Object event) {
-        try {
-            return objectMapper.writeValueAsString(event);
-        } catch (Exception e) {
-            log.error("Failed to serialize {} event to JSON", event.getClass().getSimpleName(), e);
-            throw new RuntimeException("Failed to serialize event", e);
-        }
-    }
+    private final OutboxWriter outbox;
 
     public void publishBatchSubmitted(EftBatchSubmittedEvent event) {
         log.info("Emitting eft.batch.submitted for batchId={}", event.batchId());
-        kafkaTemplate.send("eft.batch.submitted", event.batchId().toString(), toJson(event));
+        outbox.enqueue(Topics.EFT_BATCH_SUBMITTED, event.batchId().toString(), event);
+    }
+
+    public void publishDlq(BatchDeadLettered event) {
+        log.warn("Emitting eft.batch.dlq for batchId={} reason={}", event.batchId(), event.reason());
+        outbox.enqueue(Topics.EFT_BATCH_DLQ, event.batchId().toString(), event);
     }
 
     public void publishEftStatus(EftStatusEvent event) {
         log.info("Emitting eft.status for paymentId={} batchId={} status={}",
                 event.paymentId(), event.batchId(), event.status());
-        kafkaTemplate.send("eft.status", event.paymentId().toString(), toJson(event));
+        outbox.enqueue(Topics.EFT_STATUS, event.paymentId().toString(), event);
     }
 }

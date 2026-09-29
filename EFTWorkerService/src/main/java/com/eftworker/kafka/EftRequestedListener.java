@@ -1,6 +1,7 @@
 package com.eftworker.kafka;
 
 import com.eftworker.service.EftWorkerService;
+import com.events.Topics;
 import com.events.eft.EftRequested;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -23,17 +24,12 @@ public class EftRequestedListener {
     }
 
     @KafkaListener(
-            topics = "${eft.topics.requested:eft.requested}",
+            topics = Topics.EFT_REQUESTED,
             groupId = "${spring.kafka.consumer.group-id:eft-worker-service}"
     )
-    public void onMessage(ConsumerRecord<String, String> record) {
-        log.info("Consumed eft.requested key={} value={}", record.key(), record.value());
-        try {
-            EftRequested evt = objectMapper.readValue(record.value(), EftRequested.class);
-            service.handleRequested(evt);
-        } catch (Exception e) {
-            log.error("Failed to handle EftRequested message", e);
-            throw new RuntimeException(e);
-        }
+    public void onMessage(ConsumerRecord<String, String> record) throws Exception {
+        log.info("Consumed eft.requested key={}", record.key());
+        // Exceptions propagate to the container's error handler, which retries the record
+        service.handleRequested(objectMapper.readValue(record.value(), EftRequested.class));
     }
 }

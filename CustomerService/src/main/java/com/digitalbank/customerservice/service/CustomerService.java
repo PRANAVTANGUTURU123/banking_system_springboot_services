@@ -1,5 +1,7 @@
 package com.digitalbank.customerservice.service;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,6 +33,19 @@ public class CustomerService {
 	private final AuthServiceClient authServiceClient;
 	private final CustomerRepository repository;
 	private final CustomerMapper mapper;
+
+	private static final SecureRandom RANDOM = new SecureRandom();
+
+	/**
+	 * Random one-off password for the new Auth0 login. The customer never sees it:
+	 * they set their own through Auth0's password-reset flow.
+	 */
+	private static String initialPassword() {
+		byte[] bytes = new byte[24];
+		RANDOM.nextBytes(bytes);
+		// suffix guarantees upper, lower, digit and symbol for Auth0 password policies
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes) + "Aa1!";
+	}
 
 	public CustomerCreatedResponse create(CustomerRequest request) {
 
@@ -112,7 +127,7 @@ public class CustomerService {
 
 		if ("VERIFIED".equalsIgnoreCase(kycStatus)) {
 		    CustomerRegistrationRequest request =
-		        new CustomerRegistrationRequest(c.getEmail(), "default-password", c.getExternalId());
+		        new CustomerRegistrationRequest(c.getEmail(), initialPassword(), c.getExternalId());
 		    authServiceClient.registerCustomer(request);
 		    c.setKycStatus(KycStatus.VERIFIED);
 		    c.setActive(true);

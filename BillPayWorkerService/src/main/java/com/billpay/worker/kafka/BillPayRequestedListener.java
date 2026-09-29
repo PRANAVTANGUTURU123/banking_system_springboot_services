@@ -1,5 +1,6 @@
 package com.billpay.worker.kafka;
 
+import com.events.Topics;
 import com.events.billpay.*;
 import com.billpay.worker.service.BillPayWorkerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,24 +16,15 @@ import org.springframework.stereotype.Component;
 public class BillPayRequestedListener {
 
     private final BillPayWorkerService service;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = "${payments.topics.billpay-requested:billpay.requested}",
+            topics = Topics.BILLPAY_REQUESTED,
             groupId = "${spring.kafka.consumer.group-id:billpay-worker-v1}"
     )
-    public void onMessage(ConsumerRecord<String, String> record) {
-        String key = record.key();
-        String value = record.value();
-        log.info("Consumed billpay.requested key={} value={}", key, value);
-
-        try {
-            BillPayRequested evt = objectMapper.readValue(value, BillPayRequested.class);
-            service.handleRequested(evt);
-        } catch (Exception e) {
-            log.error("Failed to handle BillPayRequested message", e);
-            // In real system you would route to DLQ or use DefaultErrorHandler
-            throw new RuntimeException(e);
-        }
+    public void onMessage(ConsumerRecord<String, String> record) throws Exception {
+        log.info("Consumed billpay.requested key={}", record.key());
+        // Exceptions propagate to the container's error handler, which retries the record
+        service.handleRequested(objectMapper.readValue(record.value(), BillPayRequested.class));
     }
 }

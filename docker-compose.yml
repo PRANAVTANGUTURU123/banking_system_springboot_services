@@ -1,0 +1,175 @@
+# Whole platform with one command:   docker compose up -d --build
+# Services run with the "dev" profile (security off, no Auth0 needed).
+#
+# Host ports: services 8080-8094 as in the README, Kafka localhost:9092,
+# Postgres localhost:5433 (5433 so it doesn't clash with a local Postgres on 5432).
+
+name: bankstack
+
+x-java-service: &java-service
+  restart: unless-stopped
+  depends_on:
+    postgres:
+      condition: service_healthy
+    kafka-init:
+      condition: service_completed_successfully
+
+x-common-env: &common-env
+  SPRING_PROFILES_ACTIVE: dev
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  SPRING_DATASOURCE_USERNAME: postgres
+  SPRING_DATASOURCE_PASSWORD: postgres
+  SPRING_JPA_SHOW_SQL: "false"
+  LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: INFO
+
+services:
+
+  # ---------------- infrastructure ----------------
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  kafka:
+    image: apache/kafka:4.0.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_HEAP_OPTS: "-Xmx256m -Xms256m"
+    ports:
+      - "9092:29092"   # for services run from an IDE on the host
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  # Creates every topic up front (3 partitions each; payments are keyed so per-key order holds).
+  kafka-init:
+    image: apache/kafka:4.0.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        for t in billpay.requested billpay.enqueued bill.batch.ready bill.batch.submitted billpay.status bill.batch.dlq central1.pain002 \
+                 eft.requested eft.enqueued eft.batch.ready eft.batch.submitted eft.status eft.batch.dlq eftnetwork.ack; do
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic $$t --partitions 3 --replication-factor 1 || exit 1
+        done
+        echo "topics ready"
+
+  # ---------------- services ----------------
+
+  account-service:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: AccountService } }
+    ports: ["8084:8084"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/accountsdb
+
+  customer-service:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: CustomerService } }
+    ports: ["8083:8083"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/customerdb
+      AUTH_SERVICE_URL: http://auth-user:8094
+
+  auth-user:
+    restart: unless-stopped
+    build: { context: ., args: { SERVICE: AuthUser } }
+    ports: ["8094:8094"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: INFO
+
+  biller-service:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: BillerService } }
+    ports: ["8088:8088"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/billerdb
+
+  eft-service:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: EFTService } }
+    ports: ["8089:8089"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eftdb
+      SPRING_DATASOURCE_USERNAME: eft
+      SPRING_DATASOURCE_PASSWORD: eft
+
+  payment-orchestrator:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: PaymentOrchestrator } }
+    ports: ["8086:8086"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/paymentdb
+      ACCOUNT_SERVICE_URL: http://account-service:8084
+      BILLER_SERVICE_URL: http://biller-service:8088
+      EFT_SERVICE_URL: http://eft-service:8089
+
+  billpay-worker:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: BillPayWorkerService } }
+    ports: ["8090:8090"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/billpayworkerdb
+      BATCHING_MAX_AGE: ${BATCHING_MAX_AGE:-15s}
+
+  eft-worker:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: EFTWorkerService } }
+    ports: ["8091:8091"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eftworkerdb
+      SPRING_DATASOURCE_USERNAME: eftworker
+      SPRING_DATASOURCE_PASSWORD: eftworker
+      BATCHING_MAX_AGE: ${BATCHING_MAX_AGE:-15s}
+
+  settlement-service:
+    <<: *java-service
+    build: { context: ., args: { SERVICE: SettlementService } }
+    ports: ["8080:8080"]
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/settlementdb
+      # Set to 1 to watch the retry -> dead-letter path (see README)
+      MOCK_CENTRAL1_UPLOAD_FAILURE_RATE: ${CENTRAL1_FAILURE_RATE:-0}
+      MOCK_EFTNETWORK_UPLOAD_FAILURE_RATE: ${EFTNETWORK_FAILURE_RATE:-0}
+
+volumes:
+  pgdata:

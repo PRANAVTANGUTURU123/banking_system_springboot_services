@@ -6,7 +6,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-wgk04dj5v68sbhre.us.auth0.com/
+          issuer-uri: ${AUTH0_ISSUER_URI:https://dev-wgk04dj5v68sbhre.us.auth0.com/}
   application:
     name: billpay-worker-service
 
@@ -18,10 +18,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: validate      # schema is owned by Flyway (src/main/resources/db/migration)
+    open-in-view: false
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -30,19 +28,14 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      acks: all
 
-payments:
-  topics:
-    billpay-requested: billpay.requested
-    billpay-enqueued: billpay.enqueued
-    bill-batch-ready: bill.batch.ready
-
-  batch:
-    threshold: 1
-    
-    
+# A batch is closed and sent to settlement when it reaches max-size payments
+# or has been open for max-age, whichever comes first.
+batching:
+  max-size: 50
+  max-age: 15s
 
 auth0:
-  audience: https://mockbank/api
-
-
+  audience: ${AUTH0_AUDIENCE:https://mockbank/api}
