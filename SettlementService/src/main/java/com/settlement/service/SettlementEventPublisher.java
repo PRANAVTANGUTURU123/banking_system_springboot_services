@@ -1,79 +1,38 @@
 package com.settlement.service;
 
+import com.events.BatchDeadLettered;
+import com.events.Topics;
 import com.events.billpay.BillBatchSubmittedEvent;
-import com.events.billpay.BillBatchRetryEvent;
 import com.events.billpay.BillpayStatusEvent;
+import com.settlement.outbox.OutboxWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
-
+/**
+ * Bill-pay rail events. Everything goes through the outbox, so an event is
+ * published if and only if the settlement state change that caused it commits.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class SettlementEventPublisher {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;   // Jackson from Spring Boot
-
-    private String toJson(Object event) {
-        try {
-            return objectMapper.writeValueAsString(event);
-        } catch (Exception e) {
-            log.error("Failed to serialize {} event to JSON", event.getClass().getSimpleName(), e);
-            throw new RuntimeException("Failed to serialize event", e);
-        }
-    }
+    private final OutboxWriter outbox;
 
     public void publishBatchSubmitted(BillBatchSubmittedEvent event) {
         log.info("Emitting bill.batch.submitted for batchId={}", event.batchId());
-        kafkaTemplate.send(
-                "bill.batch.submitted",
-                event.batchId().toString(),      // key
-                toJson(event)                    // value as String
-        );
+        outbox.enqueue(Topics.BILL_BATCH_SUBMITTED, event.batchId().toString(), event);
     }
 
-    public void publishDlq(UUID batchId, String error) {
-        log.info("Emitting bill.batch.dlq for batchId={} error={}", batchId, error);
-
-        BillBatchRetryEvent event = new BillBatchRetryEvent(
-                batchId,
-                4,
-                error,
-                OffsetDateTime.now()
-        );
-
-        kafkaTemplate.send(
-                "bill.batch.dlq",
-                batchId.toString(),              // key
-                toJson(event)                    // value as String
-        );
+    public void publishDlq(BatchDeadLettered event) {
+        log.warn("Emitting bill.batch.dlq for batchId={} reason={}", event.batchId(), event.reason());
+        outbox.enqueue(Topics.BILL_BATCH_DLQ, event.batchId().toString(), event);
     }
 
     public void publishBillpayStatus(BillpayStatusEvent event) {
         log.info("Emitting billpay.status for paymentId={} batchId={} status={}",
                 event.paymentId(), event.batchId(), event.status());
-
-        kafkaTemplate.send(
-                "billpay.status",
-                event.paymentId().toString(),    // key
-                toJson(event)                    // value as String
-        );
-    }
-
-    public void publishBatchRetry(BillBatchRetryEvent event) {
-        log.info("Emitting bill.batch.retry for batchId={} attempt={}",
-                event.batchId(), event.attemptNumber());
-
-        kafkaTemplate.send(
-                "bill.batch.retry",
-                event.batchId().toString(),      // key
-                toJson(event)                    // value as String
-        );
+        outbox.enqueue(Topics.BILLPAY_STATUS, event.paymentId().toString(), event);
     }
 }

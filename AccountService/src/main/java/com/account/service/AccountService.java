@@ -16,7 +16,13 @@ import com.account.mapper.AccountMapper;
 import com.account.model.*;
 import com.account.repository.AccountHoldRepository;
 import com.account.repository.AccountRepository;
+import com.commons.exception.AccountNotFoundException;
+import com.commons.exception.BadRequestException;
+import com.commons.exception.ConflictException;
+import com.commons.exception.InsufficientFundsException;
 import com.commons.exception.OwnerAccessDeniedException;
+import com.commons.exception.ResourceNotFoundException;
+import com.commons.exception.VersionMismatchException;
 import com.commons.security.CurrentUser;
 import com.account.dto.TransactionRequest;
 import com.account.model.Transaction;
@@ -54,15 +60,44 @@ public class AccountService {
 
 	}
 
+	private Account find(UUID id) {
+		return accountRepo.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+	}
+
+	/** Loads the account with a row lock held until the surrounding transaction ends. */
+	private Account lock(UUID id) {
+		return accountRepo.findByIdForUpdate(id).orElseThrow(() -> new AccountNotFoundException(id));
+	}
+
+	private static void checkVersion(Account a, Integer expectedVersion) {
+		if (expectedVersion != null && !expectedVersion.equals(a.getVersion())) {
+			throw new VersionMismatchException(
+					"Stale version. Current=" + a.getVersion() + ", If-Match=" + expectedVersion);
+		}
+	}
+
+	private AccountHold findHold(UUID accountId, UUID holdId) {
+		AccountHold h = holdRepo.findById(holdId)
+				.orElseThrow(() -> new ResourceNotFoundException("Hold not found: " + holdId));
+		if (!h.getAccountId().equals(accountId)) {
+			throw new BadRequestException("Hold does not belong to this account");
+		}
+		return h;
+	}
+
+	private static HoldResponse toHoldResponse(AccountHold h) {
+		return new HoldResponse(h.getId(), h.getAmount(), h.getStatus(), h.getCreatedAt(), h.getReleaseAt());
+	}
+
 	private void ensureOwnerOrAdmin(Account a) {
-		
-		
+
+
 		if (currentUser.hasScope("admin:accounts"))
 			return;
-		
-		
+
+
 		var me = currentUser.customerId().orElseThrow(() -> new OwnerAccessDeniedException());
-		
+
 		if (!a.getCustomerId().equals(me)) {
 			throw new OwnerAccessDeniedException();
 		}
@@ -101,12 +136,11 @@ public class AccountService {
 	}
 
 	public AccountResponse get(UUID id) {
-		return mapper
-				.toDto(accountRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found")));
+		return mapper.toDto(find(id));
 	}
 
 	public AccountBalanceResponse getBalance(UUID id) {
-		Account a = accountRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
+		Account a = find(id);
 		ensureOwnerOrAdmin(a);
 		BigDecimal holds = activeHoldsTotal(id);
 		BigDecimal available = a.getBalance().subtract(holds);
@@ -121,7 +155,7 @@ public class AccountService {
 	/** NEW: used by PATCH /accounts/{id}/status */
 	@Transactional
 	public void updateStatus(UUID id, AccountStatus status) {
-		Account a = accountRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
+		Account a = find(id);
 		ensureOwnerOrAdmin(a);
 		a.setStatus(status);
 		accountRepo.save(a);
@@ -129,7 +163,7 @@ public class AccountService {
 
 	/** NEW: used by GET /accounts/{id}/owner */
 	public String getCustomerIdForAccount(UUID id) {
-		Account a = accountRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
+		Account a = find(id);
 		ensureOwnerOrAdmin(a);
 		return a.getCustomerId();
 	}
@@ -159,12 +193,10 @@ public class AccountService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public AccountResponse credit(UUID id, PostingRequest r, Integer expectedVersion) {
-		Account a = accountRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
+		Account a = lock(id);
 		ensureOwnerOrAdmin(a);
+		checkVersion(a, expectedVersion);
 
-		if (expectedVersion != null && !expectedVersion.equals(a.getVersion())) {
-			throw new IllegalStateException("ETag mismatch");
-		}
 		a.setBalance(a.getBalance().add(r.amount()));
 
 		Account saved = accountRepo.saveAndFlush(a);
@@ -175,16 +207,14 @@ public class AccountService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public AccountResponse debit(UUID id, PostingRequest r, Integer expectedVersion) {
-		Account a = accountRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Account not found"));
-		if (expectedVersion != null && !expectedVersion.equals(a.getVersion())) {
-			throw new IllegalStateException("ETag mismatch");
-		}
+		Account a = lock(id);
 		ensureOwnerOrAdmin(a);
+		checkVersion(a, expectedVersion);
 
 		BigDecimal holds = activeHoldsTotal(id);
 		BigDecimal available = a.getBalance().subtract(holds);
 		if (r.amount().compareTo(available) > 0) {
-			throw new IllegalArgumentException("Insufficient available funds");
+			throw new InsufficientFundsException();
 		}
 		a.setBalance(a.getBalance().subtract(r.amount()));
 
@@ -196,23 +226,25 @@ public class AccountService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public HoldResponse createHold(UUID accountId, CreateHoldRequest r) {
-		Account a = accountRepo.findById(accountId)
-				.orElseThrow(() -> new IllegalArgumentException("Account not found"));
+		Account a = lock(accountId);
 		ensureOwnerOrAdmin(a);
 
-		String fp = (r.idempotencyKey() != null && !r.idempotencyKey().isBlank()) ? r.idempotencyKey().trim() : null;
+		// Idempotency keys are scoped to the account: the same client key used
+		// against a different account must not return someone else's hold.
+		String fp = (r.idempotencyKey() != null && !r.idempotencyKey().isBlank())
+				? accountId + ":" + r.idempotencyKey().trim()
+				: null;
 		if (fp != null) {
 			Optional<AccountHold> ex = holdRepo.findByRequestFingerprint(fp);
 			if (ex.isPresent()) {
-				AccountHold h = ex.get();
-				return new HoldResponse(h.getId(), h.getAmount(), h.getStatus(), h.getCreatedAt(), h.getReleaseAt());
+				return toHoldResponse(ex.get());
 			}
 		}
 
 		BigDecimal holds = activeHoldsTotal(accountId);
 		BigDecimal available = a.getBalance().subtract(holds);
 		if (r.amount().compareTo(available) > 0) {
-			throw new IllegalArgumentException("Insufficient available funds for hold");
+			throw new InsufficientFundsException();
 		}
 
 		AccountHold h = AccountHold.builder().accountId(accountId).amount(r.amount()).status(HoldStatus.ACTIVE)
@@ -221,27 +253,59 @@ public class AccountService {
 		h = holdRepo.save(h);
 		emitTransaction(a, "HOLD_PLACED", r.amount(), r.reason(), true, a.getBalance());
 
-		return new HoldResponse(h.getId(), h.getAmount(), h.getStatus(), h.getCreatedAt(), h.getReleaseAt());
+		return toHoldResponse(h);
 	}
 
+	/**
+	 * Releases an ACTIVE hold without moving money (payment failed / cancelled).
+	 * Idempotent: releasing a hold that is no longer ACTIVE returns it unchanged.
+	 */
 	@Transactional(propagation = Propagation.REQUIRED)
 	public HoldResponse releaseHold(UUID accountId, UUID holdId, String reason) {
-		AccountHold h = holdRepo.findById(holdId).orElseThrow(() -> new IllegalArgumentException("Hold not found"));
-		if (!h.getAccountId().equals(accountId)) {
-			throw new IllegalArgumentException("Hold does not belong to this account");
-		}
+		Account a = lock(accountId);
+		AccountHold h = findHold(accountId, holdId);
 		if (h.getStatus() != HoldStatus.ACTIVE) {
-			return new HoldResponse(h.getId(), h.getAmount(), h.getStatus(), h.getCreatedAt(), h.getReleaseAt());
+			return toHoldResponse(h);
 		}
 
 		h.setStatus(HoldStatus.RELEASED);
 		h.setReason(reason);
 		h = holdRepo.save(h);
-		Account a = accountRepo.findById(accountId)
-				.orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
 		emitTransaction(a, "HOLD_RELEASED", h.getAmount(), reason, true, a.getBalance());
 
-		return new HoldResponse(h.getId(), h.getAmount(), h.getStatus(), h.getCreatedAt(), h.getReleaseAt());
+		return toHoldResponse(h);
+	}
+
+	/**
+	 * Settles a payment in one atomic step: the ACTIVE hold becomes CAPTURED and
+	 * its amount is debited from the balance, in the same DB transaction. This
+	 * replaces the old "release hold, then debit" pair of calls, where a crash in
+	 * between left the money neither held nor debited.
+	 *
+	 * <p>Idempotent: capturing an already-CAPTURED hold returns it unchanged, so a
+	 * redelivered settlement event can't debit twice.</p>
+	 */
+	@Transactional(propagation = Propagation.REQUIRED)
+	public HoldResponse captureHold(UUID accountId, UUID holdId, String reason) {
+		Account a = lock(accountId);
+		AccountHold h = findHold(accountId, holdId);
+		if (h.getStatus() == HoldStatus.CAPTURED) {
+			return toHoldResponse(h);
+		}
+		if (h.getStatus() != HoldStatus.ACTIVE) {
+			throw new ConflictException("Hold " + holdId + " is " + h.getStatus() + " and cannot be captured");
+		}
+
+		// The hold reserved these funds, so the balance covers it.
+		a.setBalance(a.getBalance().subtract(h.getAmount()));
+		Account saved = accountRepo.saveAndFlush(a);
+
+		h.setStatus(HoldStatus.CAPTURED);
+		h.setReason(reason);
+		h = holdRepo.save(h);
+
+		emitTransaction(saved, "DEBIT", h.getAmount(), reason, true, saved.getBalance());
+		return toHoldResponse(h);
 	}
 }

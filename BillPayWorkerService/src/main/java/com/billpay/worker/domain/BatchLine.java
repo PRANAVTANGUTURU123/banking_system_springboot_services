@@ -6,7 +6,9 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "batch_lines")
+@Table(name = "batch_lines",
+       uniqueConstraints = @UniqueConstraint(name = "uk_batch_line_payment", columnNames = "payment_id"), // a payment is batched once
+       indexes = @Index(name = "idx_batch_line_batch", columnList = "batch_id"))
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class BatchLine {

@@ -6,7 +6,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-wgk04dj5v68sbhre.us.auth0.com/
+          issuer-uri: ${AUTH0_ISSUER_URI:https://dev-wgk04dj5v68sbhre.us.auth0.com/}
   application:
     name: auth-user
 
@@ -16,19 +16,19 @@ logging:
     root: INFO
     com.authuser: DEBUG
     org.springframework.security: DEBUG
-    
 
-    
-    
+
 consent:
   service:
     url: http://localhost:8096/api/v1
-    
-    
+
+
+# Management API credentials come from the environment (see .env.example)
 auth0:
-  domain: https://dev-wgk04dj5v68sbhre.us.auth0.com
-  audience: https://mockbank/api
+  domain: ${AUTH0_DOMAIN:https://dev-wgk04dj5v68sbhre.us.auth0.com}
+  audience: ${AUTH0_AUDIENCE:https://mockbank/api}
+  customer-role-id: ${AUTH0_CUSTOMER_ROLE_ID:set-AUTH0_CUSTOMER_ROLE_ID}
   mgmt:
-     client-id: 7m9h4UQsjOeVom5ysSt0t3TFLRgibBkT
-     client-secret: XXXXXXX
-     audience: https://dev-wgk04dj5v68sbhre.us.auth0.com/api/v2/
+     client-id: ${AUTH0_MGMT_CLIENT_ID:set-AUTH0_MGMT_CLIENT_ID}
+     client-secret: ${AUTH0_MGMT_CLIENT_SECRET:set-AUTH0_MGMT_CLIENT_SECRET}
+     audience: ${AUTH0_DOMAIN:https://dev-wgk04dj5v68sbhre.us.auth0.com}/api/v2/

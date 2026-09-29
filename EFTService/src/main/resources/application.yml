@@ -11,7 +11,7 @@ spring:
     password: eft
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate      # schema is owned by Flyway (src/main/resources/db/migration)
     properties:
       hibernate:
         format_sql: true

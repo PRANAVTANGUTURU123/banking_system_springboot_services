@@ -1,26 +1,26 @@
 server:
-  port: 8086   
+  port: 8086
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-wgk04dj5v68sbhre.us.auth0.com/
-          
+          issuer-uri: ${AUTH0_ISSUER_URI:https://dev-wgk04dj5v68sbhre.us.auth0.com/}
+
       client:
         registration:
           account-m2m:
             provider: auth0
             authorization-grant-type: client_credentials
-            client-id: COElk9GHOmWS9L4MAQvscuxA49Cl4mfI
-            client-secret: XXXXXXXXXX
+            # Only used outside the dev profile; set via environment (see .env.example)
+            client-id: ${AUTH0_M2M_CLIENT_ID:set-AUTH0_M2M_CLIENT_ID}
+            client-secret: ${AUTH0_M2M_CLIENT_SECRET:set-AUTH0_M2M_CLIENT_SECRET}
             scope: admin:accounts
 
         provider:
           auth0:
-            token-uri: https://dev-wgk04dj5v68sbhre.us.auth0.com/oauth/token
-            
-            
+            token-uri: ${AUTH0_ISSUER_URI:https://dev-wgk04dj5v68sbhre.us.auth0.com/}oauth/token
+
   application:
     name: payment-orchestrator
 
@@ -32,10 +32,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update        # dev/demo ke liye; prod mein validate/none
-    show-sql: true
-    properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: validate      # schema is owned by Flyway (src/main/resources/db/migration)
+    open-in-view: false
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -49,27 +47,15 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
 
     listener:
-      type: single  
-      
-      
-payments:
-  topics:
-    billpay-requested: billpay.requested
-    billpay-enqueued: billpay.enqueued
-    bill-batch-ready: bill.batch.ready
-    bill-batch-submitted: bill.batch.submitted
-    billpay-status: billpay.status
-    bill-batch-retry: bill.batch.retry
-    bill-batch-resubmit: bill.batch.resubmit
-    bill-batch-dlq: bill.batch.dlq
-    
+      type: single
+
 account:
   service:
     url: http://localhost:8084
-    
-    
+
 biller:
   service:
     url: http://localhost:8088
@@ -77,13 +63,6 @@ biller:
 eft:
   service:
     url: http://localhost:8089
-    
-
 
 auth0:
-  audience: https://mockbank/api
-
-
-
-
-    
+  audience: ${AUTH0_AUDIENCE:https://mockbank/api}

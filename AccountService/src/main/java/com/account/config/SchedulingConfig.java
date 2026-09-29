@@ -5,6 +5,7 @@ import com.account.repository.AccountHoldRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -29,8 +30,13 @@ public class SchedulingConfig {
         }
 
         toExpire.forEach(h -> {
-            h.setStatus(HoldStatus.EXPIRED);
-            holdRepo.save(h);
+            try {
+                h.setStatus(HoldStatus.EXPIRED);
+                holdRepo.save(h);
+            } catch (ObjectOptimisticLockingFailureException e) {
+                // Captured or released concurrently — that outcome wins; skip.
+                log.info("Hold {} changed concurrently, not expiring", h.getId());
+            }
         });
     }
 }

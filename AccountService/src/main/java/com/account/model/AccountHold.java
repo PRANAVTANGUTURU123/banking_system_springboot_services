@@ -44,9 +44,13 @@ public class AccountHold {
     /** Optional: auto-expire holds */
     private LocalDateTime releaseAt;
 
-    /** Optional idempotency for holds */
+    /** Optional idempotency for holds, scoped as "{accountId}:{Idempotency-Key}" */
     @Column(length = 128, unique = true)
     private String requestFingerprint;
+
+    /** Optimistic locking: the expiry job and capture/release can't overwrite each other. */
+    @Version
+    private Integer version;
 
     @PrePersist
     public void prePersist() {

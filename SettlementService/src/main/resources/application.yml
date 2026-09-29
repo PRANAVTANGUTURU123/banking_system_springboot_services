@@ -8,22 +8,30 @@ spring:
     password: postgres
   jpa:
     hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-    show-sql: false
+      ddl-auto: validate      # schema is owned by Flyway (src/main/resources/db/migration)
+    open-in-view: false
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+
+settlement:
+  retry:
+    max-retries: 3        # after 1 + 3 failed uploads the batch is dead-lettered
+    base-backoff: 5s      # 5s, 10s, 20s between attempts
+
+# Simulated clearing-network outages (0.0 = never fail, 1.0 = always fail)
+mock:
+  central1:
+    upload-failure-rate: 0
+  eftnetwork:
+    upload-failure-rate: 0
 
 management:
   endpoints:

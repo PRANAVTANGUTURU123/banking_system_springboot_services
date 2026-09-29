@@ -24,6 +24,10 @@ public class EftBatchSettlement {
     @Column(nullable = false)
     private SettlementStatus status;
 
+    private int retryCount;   // failed upload attempts so far
+
+    private OffsetDateTime nextRetryAt; // when the retry scheduler picks it up again (status FAILED)
+
     private String cpa005FileName;
 
     private String networkReference;

@@ -1,7 +1,9 @@
 package com.payments.orch.service;
 
 import com.account.dto.CreateHoldRequest;
+import com.events.Topics;
 import com.events.eft.EftRequested;
+import com.payments.orch.client.UpstreamErrors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payments.orch.client.AccountClient;
 import com.payments.orch.domain.Outbox;
@@ -58,7 +60,8 @@ public class EftOrchestrator {
             null,
             idemKey
     );
-    var paymentId = accounts.placeHold(req.debtorAccountId(), idemKey, holdReq).holdId();
+    var paymentId = UpstreamErrors.call("account-service",
+        () -> accounts.placeHold(req.debtorAccountId(), idemKey, holdReq)).holdId();
 
     // 4) Persist Payment row in FUNDS_HELD state
     var now = OffsetDateTime.now();
@@ -92,7 +95,7 @@ public class EftOrchestrator {
     );
 
     outboxRepo.save(Outbox.builder()
-        .topic("eft.requested")
+        .topic(Topics.EFT_REQUESTED)
         .key(paymentId)
         .payloadJson(write(evt))
         .state("PENDING")

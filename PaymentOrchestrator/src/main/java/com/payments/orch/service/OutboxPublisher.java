@@ -20,20 +20,21 @@ public class OutboxPublisher {
   private final OutboxRepo outboxRepo;
   private final KafkaTemplate<String,String> kafka;
 
-  @Scheduled(fixedDelayString = "${outbox.publish.fixedDelayMs:5000}")
+  @Scheduled(fixedDelayString = "${outbox.publish.fixedDelayMs:1000}")
   @Transactional
   public void publish() {
-    List<Outbox> batch = outboxRepo.findTop200ByStateOrderByIdAsc("PENDING");
+    List<Outbox> batch = outboxRepo.lockPendingBatch();
     for (var row: batch) {
       try {
         kafka.send(row.getTopic(), row.getKey().toString(), row.getPayloadJson()).get();
-        row.setState("PUBLISHED");
       } catch (Exception e) {
-        log.error("Outbox publish failed id={} topic={} key={}", row.getId(), row.getTopic(), row.getKey(), e);
-        row.setState("FAILED");
+        // Leave the row PENDING so the next run retries it, and stop here so
+        // later events are not published ahead of this one.
+        log.warn("Outbox publish failed id={} topic={}, will retry: {}", row.getId(), row.getTopic(), e.getMessage());
+        break;
       }
+      row.setState("PUBLISHED");
       row.setUpdatedAt(OffsetDateTime.now());
     }
-    outboxRepo.saveAll(batch);
   }
 }
