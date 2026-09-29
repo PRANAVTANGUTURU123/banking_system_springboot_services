@@ -2,6 +2,8 @@ package com.payments.orch.service;
 
 import com.payments.orch.dto.BillPayRequest;
 import com.payments.orch.client.BillerRegistryClient;
+import com.commons.exception.BadRequestException;
+import com.payments.orch.client.UpstreamErrors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,15 +15,15 @@ public class BillPayValidator {
   private final BillerRegistryClient registry;
 
   public void validate(BillPayRequest r) {
-    if (!registry.isActive(r.billerReferenceNumber())) {
-      throw new IllegalArgumentException("BILLER_INACTIVE");
+    if (!UpstreamErrors.call("biller-service", () -> registry.isActive(r.billerReferenceNumber()))) {
+      throw new BadRequestException("BILLER_INACTIVE");
     }
     var exec = LocalDate.parse(r.executionDate());
     if (exec.isBefore(LocalDate.now())) {
-      throw new IllegalArgumentException("EXECUTION_DATE_PAST");
+      throw new BadRequestException("EXECUTION_DATE_PAST");
     }
     if (!"CAD".equals(r.amount().currency())) {
-      throw new IllegalArgumentException("CURRENCY_NOT_ALLOWED");
+      throw new BadRequestException("CURRENCY_NOT_ALLOWED");
     }
   }
 }

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -20,15 +21,22 @@ public class EftNetworkMockController {
     }
 
     /**
-     * Trigger the EFT network acknowledgement simulation for a given batch.
+     * Trigger the EFT network acknowledgement simulation for a given batch. Every
+     * payment is settled unless rejected via {@code reject} (repeatable) or {@code rejectAll}.
      *
-     * Example:
-     * POST /api/mock/eftnetwork/ack/3fa85f64-5717-4562-b3fc-2c963f66afa6
+     * Examples:
+     * POST /api/mock/eftnetwork/ack/{batchId}
+     * POST /api/mock/eftnetwork/ack/{batchId}?reject={paymentId}
+     * POST /api/mock/eftnetwork/ack/{batchId}?rejectAll=true
      */
     @PostMapping("/ack/{batchId}")
-    public ResponseEntity<String> simulateAck(@PathVariable("batchId") UUID batchId) {
+    public ResponseEntity<String> simulateAck(
+            @PathVariable("batchId") UUID batchId,
+            @RequestParam(name = "reject", required = false) Set<UUID> reject,
+            @RequestParam(name = "rejectAll", defaultValue = "false") boolean rejectAll) {
         log.info("Received request to simulate EFT ack for batchId={}", batchId);
-        simulator.simulateAckForBatch(batchId);
-        return ResponseEntity.accepted().body("EFT ack simulation triggered for batchId=" + batchId);
+        int items = simulator.simulateAckForBatch(batchId, reject == null ? Set.of() : reject, rejectAll);
+        return ResponseEntity.accepted()
+                .body("EFT ack simulation triggered for batchId=" + batchId + " (" + items + " payments)");
     }
 }

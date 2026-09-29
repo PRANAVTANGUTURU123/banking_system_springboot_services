@@ -8,6 +8,7 @@ import java.util.UUID;
 @Entity
 @Table(
         name = "eft_batch_lines",
+        uniqueConstraints = @UniqueConstraint(name = "uk_eft_line_payment", columnNames = "payment_id"), // a payment is batched once
         indexes = {@Index(name = "idx_eft_line_batch", columnList = "batch_id")}
 )
 public class EftBatchLine {

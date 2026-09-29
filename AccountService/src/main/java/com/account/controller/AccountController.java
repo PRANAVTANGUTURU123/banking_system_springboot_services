@@ -114,6 +114,17 @@ public class AccountController {
         return ResponseEntity.ok(resp);
     }
 
+    /** Atomically converts an ACTIVE hold into a debit (payment settled). Idempotent. */
+    @PostMapping("/accounts/{id}/holds/{holdId}/capture")
+    @PreAuthorize("hasAnyAuthority('SCOPE_fdx:accounts.write','SCOPE_admin:accounts')")
+    public ResponseEntity<HoldResponse> captureHold(
+            @PathVariable("id") UUID id,
+            @PathVariable("holdId") UUID holdId,
+            @RequestParam(name = "reason", required = false) String reason) {
+        HoldResponse resp = service.captureHold(id, holdId, reason == null ? "payment_settled" : reason);
+        return ResponseEntity.ok(resp);
+    }
+
     /* ---------------- Postings ---------------- */
 
     @PostMapping("/accounts/{id}/credit")

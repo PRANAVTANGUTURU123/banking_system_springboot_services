@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface EftBatchLineRepository extends JpaRepository<EftBatchLine, Long> {
     long countByBatchId(UUID batchId);
     List<EftBatchLine> findAllByBatchId(UUID batchId);
+    boolean existsByPaymentId(UUID paymentId);
 }

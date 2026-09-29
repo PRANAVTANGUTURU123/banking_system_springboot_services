@@ -11,5 +11,6 @@ public interface BatchLineRepository extends JpaRepository<BatchLine, Long> {
 
     long countByBatchId(UUID batchId);
     List<BatchLine> findAllByBatchId(UUID batchId);
+    boolean existsByPaymentId(UUID paymentId);
 
 }

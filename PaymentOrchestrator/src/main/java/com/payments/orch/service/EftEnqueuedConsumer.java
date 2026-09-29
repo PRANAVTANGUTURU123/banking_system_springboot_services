@@ -1,5 +1,6 @@
 package com.payments.orch.service;
 
+import com.events.Topics;
 import com.events.eft.EftEnqueued;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payments.orch.domain.Payment;
@@ -24,14 +25,14 @@ public class EftEnqueuedConsumer {
   private final ProcessedEventRepo processed;
   private final ObjectMapper om;
 
-  @KafkaListener(topics = "eft.enqueued", groupId = "payment-api")
+  @KafkaListener(topics = Topics.EFT_ENQUEUED, groupId = "payment-api")
   @Transactional
   public void onMessage(String message) throws Exception {
     var evt = om.readValue(message, EftEnqueued.class);
     if (processed.existsByHandlerAndEventId("eft-enqueued", evt.eventId())) return;
 
     Payment p = paymentRepo.findById(evt.paymentId()).orElse(null);
-    if (p != null) {
+    if (p != null && p.getState().canAdvanceTo(PaymentState.BATCHED)) {
       p.setState(PaymentState.BATCHED);
       p.setBatchId(evt.batchId());
       p.setUpdatedAt(OffsetDateTime.now());
