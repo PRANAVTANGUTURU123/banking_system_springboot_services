@@ -6,10 +6,12 @@ spring:
     name: eft-worker-service
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: eft-worker-service
       auto-offset-reset: earliest
+    producer:
+      acks: all
     listener:
       ack-mode: record
 
@@ -20,21 +22,17 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
+      ddl-auto: validate      # schema is owned by Flyway (src/main/resources/db/migration)
+    open-in-view: false
+
+# A batch is closed and sent to settlement when it reaches max-size payments
+# or has been open for max-age, whichever comes first.
+batching:
+  max-size: 50
+  max-age: 15s
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
-
-# TODO: set issuer-uri when wiring Auth0 / JWKS
-# spring:
-#   security:
-#     oauth2:
-#       resourceserver:
-#         jwt:
-#           issuer-uri: https://YOUR_TENANT/

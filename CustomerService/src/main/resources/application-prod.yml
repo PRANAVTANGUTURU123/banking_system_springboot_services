@@ -25,7 +25,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${JWK_SET_URI}
+          issuer-uri: ${AUTH0_ISSUER_URI}
 
 application:
   name: customer-service
@@ -44,6 +44,9 @@ resilience4j.circuitbreaker:
 
 auth:
   service:
-    url: http://localhost:8083/api/v1
+    url: ${AUTH_SERVICE_URL:http://auth-user:8094}
 
 
+
+auth0:
+  audience: ${AUTH0_AUDIENCE}

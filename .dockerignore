@@ -1,0 +1,14 @@
+**/target
+**/.mvn
+**/mvnw
+**/mvnw.cmd
+**/.idea
+**/.vscode
+**/*.iml
+.git
+*.pdf
+POSTMAN_COLLECTION
+UseCases
+APISpecs
+SettlementService/batches
+docker

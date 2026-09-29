@@ -33,6 +33,10 @@ public class Auth0UserService {
     @Value("${auth0.domain}")
     private String domain;
 
+    /** Auth0 role granted to every new customer (auth0.customer-role-id). */
+    @Value("${auth0.customer-role-id}")
+    private String customerRoleId;
+
     private final ManagementTokenService tokens;
     private final RestTemplate rt = new RestTemplate();
 
@@ -105,7 +109,7 @@ public class Auth0UserService {
         }
 
         // 👇 Straight role assignment — that’s it.
-        assignRole(userId, "rol_c7PHGjx2QtuPyVBE", auth);
+        assignRole(userId, customerRoleId, auth);
         
         
         // ✅ Return the created user object

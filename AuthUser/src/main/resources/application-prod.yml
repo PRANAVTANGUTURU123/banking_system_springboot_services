@@ -2,23 +2,13 @@ server:
   port: 8094
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH0_ISSUER_URI}
   application:
     name: auth-user
-
-  datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   jackson:
     serialization:
@@ -34,9 +24,9 @@ consent:
 
 auth0:
   domain: ${AUTH0_DOMAIN}
-  mgmt-client-id: ${AUTH0_MGMT_CLIENT_ID}
-  mgmt-client-secret: ${AUTH0_MGMT_CLIENT_SECRET}
   audience: ${AUTH0_AUDIENCE}
-  loginClientId: ${AUTH0_LOGIN_CLIENT_ID}
-  loginClientSecret: ${AUTH0_LOGIN_CLIENT_SECRET}
-  loginAudience: ${AUTH0_LOGIN_AUDIENCE}
+  customer-role-id: ${AUTH0_CUSTOMER_ROLE_ID}
+  mgmt:
+    client-id: ${AUTH0_MGMT_CLIENT_ID}
+    client-secret: ${AUTH0_MGMT_CLIENT_SECRET}
+    audience: ${AUTH0_DOMAIN}/api/v2/

@@ -7,7 +7,10 @@ import com.payments.orch.client.AccountClient;
 import com.payments.orch.domain.Outbox;
 import com.payments.orch.domain.Payment;
 import com.payments.orch.domain.PaymentState;
+import com.events.Topics;
 import com.events.billpay.*;
+import com.commons.exception.ResourceNotFoundException;
+import com.payments.orch.client.UpstreamErrors;
 import com.payments.orch.repo.OutboxRepo;
 import com.payments.orch.repo.PaymentRepo;
 import com.account.dto.CreateHoldRequest;   
@@ -60,7 +63,8 @@ public class BillPayOrchestrator {
    
     //Generate paymentId (ledger/business id)
     // 4) Call AccountService to place hold (JWT relay via FeignTokenRelayConfig) 
-    var paymentId=  accounts.placeHold(req.debtorAccountId(), idemKey, holdReq).holdId();
+    var paymentId = UpstreamErrors.call("account-service",
+        () -> accounts.placeHold(req.debtorAccountId(), idemKey, holdReq)).holdId();
 
     // 5) Persist Payment row in FUNDS_HELD state
     var now = OffsetDateTime.now();
@@ -68,6 +72,7 @@ public class BillPayOrchestrator {
         .paymentId(paymentId)
         .state(PaymentState.FUNDS_HELD)
         .debtorAccountId(req.debtorAccountId())
+        .channel("BILLPAY")
         .billerRefNumber(req.billerReferenceNumber())
         .invoiceReference(req.invoiceReference())
         .executionDate(LocalDate.parse(req.executionDate()))
@@ -95,7 +100,7 @@ public class BillPayOrchestrator {
         .build();
 
     outboxRepo.save(Outbox.builder()
-        .topic("billpay.requested")
+        .topic(Topics.BILLPAY_REQUESTED)
         .key(paymentId)
         .payloadJson(write(evt))
         .state("PENDING")
@@ -112,7 +117,8 @@ public class BillPayOrchestrator {
   }
 
   public Payment view(UUID paymentId) {
-    return paymentRepo.findById(paymentId).orElseThrow();
+    return paymentRepo.findById(paymentId)
+        .orElseThrow(() -> new ResourceNotFoundException("Payment not found: " + paymentId));
   }
 
   private String write(Object o) {

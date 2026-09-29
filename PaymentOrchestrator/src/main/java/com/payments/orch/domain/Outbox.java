@@ -21,11 +21,11 @@ public class Outbox {
   @Column(nullable=false, length=120)
   private UUID key;        // Kafka message key (partitioning, ordering)
 
-  @Lob @Column(nullable=false)
+  @Column(nullable=false, columnDefinition="text")
   private String payloadJson; // Serialized event JSON (schema owned by your service)
 
   @Column(nullable=false, length=20)
-  private String state; // PENDING → PUBLISHED (or FAILED if publish attempt crashes)
+  private String state; // PENDING → PUBLISHED (failed sends stay PENDING and are retried)
 
   @Column(name="created_at", nullable=false)
   private OffsetDateTime createdAt;

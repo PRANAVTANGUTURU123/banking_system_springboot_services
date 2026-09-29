@@ -1,5 +1,6 @@
 package com.payments.orch.service;
 
+import com.events.Topics;
 import com.events.eft.EftBatchSubmittedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payments.orch.domain.Payment;
@@ -25,7 +26,7 @@ public class EftSubmittedConsumer {
   private final ProcessedEventRepo processed;
   private final ObjectMapper om;
 
-  @KafkaListener(topics = "eft.batch.submitted", groupId = "payment-api")
+  @KafkaListener(topics = Topics.EFT_BATCH_SUBMITTED, groupId = "payment-api")
   @Transactional
   public void onMessage(String message) throws Exception {
     var evt = om.readValue(message, EftBatchSubmittedEvent.class);
@@ -40,8 +41,10 @@ public class EftSubmittedConsumer {
     List<Payment> list = paymentRepo.findAllByBatchId(evt.batchId());
     var now = OffsetDateTime.now();
     for (var p : list) {
-      p.setState(PaymentState.SUBMITTED);
-      p.setUpdatedAt(now);
+      if (p.getState().canAdvanceTo(PaymentState.SUBMITTED)) {
+        p.setState(PaymentState.SUBMITTED);
+        p.setUpdatedAt(now);
+      }
     }
     paymentRepo.saveAll(list);
 
